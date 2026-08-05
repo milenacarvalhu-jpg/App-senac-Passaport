@@ -10,6 +10,10 @@ function App() {
   const [fullName, setFullName] = useState('');
   const [isFirstTime, setIsFirstTime] = useState('yes');
 
+  // Oficinas state
+  const [oficinas, setOficinas] = useState([]);
+  const [loadingOficinas, setLoadingOficinas] = useState(false);
+
   useEffect(() => {
     const storedData = localStorage.getItem('userData');
     if (storedData) {
@@ -19,6 +23,21 @@ function App() {
       setCurrentScreen('home');
     }
   }, []);
+
+  useEffect(() => {
+    if (currentScreen === 'schedule') {
+      setLoadingOficinas(true);
+      fetch('/oficinas.json')
+        .then(res => res.json())
+        .then(data => {
+          // Filtrar link vazio no final do JSON
+          const validas = data.filter(o => o.titulo && o.titulo !== 'Links Relacionados');
+          setOficinas(validas);
+        })
+        .catch(err => console.error("Erro ao buscar oficinas:", err))
+        .finally(() => setLoadingOficinas(false));
+    }
+  }, [currentScreen]);
 
   const getPeriod = () => {
     const hour = new Date().getHours();
@@ -53,7 +72,41 @@ function App() {
           <h1 className="schedule-title">Cronograma</h1>
           <p className="user-greeting">Olá, {userData?.fullName}</p>
         </header>
-        {/* Futuro conteúdo do cronograma ficará aqui */}
+        
+        <div className="oficinas-section">
+          <h2 className="section-title">Oficinas Disponíveis</h2>
+          {loadingOficinas ? (
+            <p>Carregando oficinas...</p>
+          ) : (
+            <div className="oficinas-grid">
+              {oficinas.map((oficina, index) => (
+                <div key={index} className="oficina-card">
+                  <div className="oficina-card-header">
+                    <span className="oficina-categoria">{oficina.categoria.replace('.', '')}</span>
+                  </div>
+                  <h3 className="oficina-titulo">{oficina.titulo}</h3>
+                  
+                  <div className="oficina-info">
+                    {oficina.local && (
+                      <span className="info-item">
+                        📍 {oficina.local}
+                      </span>
+                    )}
+                    {oficina.horarios && oficina.horarios.length > 0 && (
+                      <span className="info-item">
+                        ⏰ {oficina.horarios[0]} {oficina.horarios.length > 1 ? `(+${oficina.horarios.length - 1})` : ''}
+                      </span>
+                    )}
+                  </div>
+                  
+                  <button className="btn-secondary btn-full" onClick={() => alert('Em breve: Detalhes da Oficina')}>
+                    Ver Detalhes
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
