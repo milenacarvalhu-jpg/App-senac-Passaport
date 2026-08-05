@@ -4,8 +4,8 @@
 - [x] Configuração inicial do React com Vite
 
 ## Visitantes
-- [ ] Cadastro inicial parcial de usuário
-- [ ] Cronograma
+- [x] Cadastro inicial parcial de usuário
+- [x] Cronograma
 - [ ] Filtros do cronograma
 
 ## Oficinas
